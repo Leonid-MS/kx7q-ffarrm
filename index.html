@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Ферма</title>
+<script>window.onerror=function(m,u,l){var d=document.createElement('div');d.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:99;background:#b00020;color:#fff;font:12px sans-serif;padding:8px';d.textContent='Ошибка: '+m+' (строка '+l+')';(document.body||document.documentElement).appendChild(d)};</script>
+<style>
+:root{--bg:#e4eeee;--card:#f7fbfa;--tx:#1d2b2a;--mu:#587170;--ac:#2f7a3a;--bd:#bfd2d0;--soil:#7a5638;--soil2:#6a4a2f;--gold:#f0b429;--onac:#fff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#101c1a;--card:#18282582;--card:#1a2b28;--tx:#e3efec;--mu:#8fb0ab;--ac:#5fbf6a;--bd:#2c4440;--soil:#5a3f29;--soil2:#4c3622;--onac:#0c1a12;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#101c1a;--card:#1a2b28;--tx:#e3efec;--mu:#8fb0ab;--ac:#5fbf6a;--bd:#2c4440;--soil:#5a3f29;--soil2:#4c3622;--onac:#0c1a12;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--tx);font-family:"Trebuchet MS","Segoe UI",system-ui,sans-serif}
+main{max-width:460px;margin:0 auto;padding:14px}
+.top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.money{font-size:30px;font-weight:700}
+.day{color:var(--mu);font-size:15px}
+h2{font-size:16px;margin:18px 0 8px;font-weight:700}
+.hrow{display:flex;align-items:center;justify-content:space-between;margin:18px 0 8px}
+.hrow h2{margin:0}
+button.act.mini{padding:6px 10px;font-size:13px}
+.seeds{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.seed{border:2px solid var(--bd);background:var(--card);color:var(--tx);border-radius:12px;padding:8px 4px;font:inherit;font-size:12px;line-height:1.3}
+.seed b{font-size:22px;display:block}
+.seed.lock{opacity:.6}
+.seed.on{border-color:var(--ac);background:var(--ac);color:var(--onac)}
+.field{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.plot{aspect-ratio:1;border:0;border-radius:10px;background:var(--soil);color:#fff;font:inherit;font-size:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;box-shadow:inset 0 -5px 0 var(--soil2)}
+.plot small{font-size:10px;opacity:.9}
+.plot.empty{font-size:20px;opacity:.75}
+.plot.gold{box-shadow:inset 0 -5px 0 var(--soil2),0 0 0 3px var(--gold)}
+.plot.ready.gold{background:#c99a14;box-shadow:inset 0 -5px 0 #9a7410,0 0 0 3px #fff3b0}
+.plot.ready{background:#3d8a3a;box-shadow:inset 0 -5px 0 #2b6a2a,0 0 0 3px var(--gold)}
+.row{display:flex;align-items:center;background:var(--card);border:1px solid var(--bd);border-radius:12px;padding:10px 12px;margin-bottom:8px}
+.row .nm{flex:1;font-size:15px}
+.row .nm span{display:block;color:var(--mu);font-size:13px}
+.up{color:var(--ac)}.down{color:#c0502f}
+button.act{border:0;border-radius:10px;background:var(--ac);color:var(--onac);font:inherit;font-weight:700;padding:10px 14px}
+button.act:disabled{opacity:.4}
+#intro,#start{position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:20px;z-index:10}
+#intro .box,#start .box{background:var(--card);color:var(--tx);border-radius:16px;padding:20px;max-width:380px;width:100%}
+#intro h1,#start h1{font-size:20px;margin:0 0 10px}
+#intro p,#start p{margin:8px 0;font-size:15px;line-height:1.4}
+.evb{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:8px 12px;margin-bottom:10px;font-size:14px}
+.hint{color:var(--mu);font-size:14px;margin-bottom:8px}
+.btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:10px}
+.btns button{padding:10px 4px;font-size:14px}
+.modal{position:fixed;top:0;right:0;bottom:0;left:0;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;z-index:9}
+.modal.on{display:flex}
+.modal .box{background:var(--bg);color:var(--tx);border-radius:16px 16px 0 0;padding:14px;width:100%;max-width:460px;max-height:80vh;overflow:auto;padding-bottom:calc(14px + env(safe-area-inset-bottom,0px))}
+.mh{display:flex;align-items:center;margin-bottom:8px}
+.mh h2{margin:0;flex:1}
+.mm{font-weight:700}
+.x{border:0;background:var(--card);color:var(--tx);border-radius:50%;width:34px;height:34px;font:inherit;font-size:16px}
+.plot.gh{outline:3px solid #7fd4ff;outline-offset:-3px}
+.plot.sc{background:#5a7a3a}
+.plot.pest{background:#7a2f2f;animation:shake .3s infinite}
+@keyframes shake{50%{transform:translateX(3px)}}
+.fw.night::after{content:"";position:absolute;top:0;right:0;bottom:0;left:0;background:rgba(10,20,70,.45);pointer-events:none;border-radius:10px}
+.stockrow{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:14px}
+.plot.barn{background:#8a5a3a}
+.plot.dead{background:#444;opacity:.8}
+.plot.ready.epic{background:#7b3fb0;box-shadow:inset 0 -5px 0 #5a2a85,0 0 0 3px #d9a8ff}
+.seed.rare{border-color:#9b59d0}
+.msg{min-height:20px;color:var(--mu);font-size:14px;margin-top:10px}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.fw{position:relative}
+#wt{position:absolute;top:0;right:0;bottom:0;left:0;display:none;border-radius:10px;background:rgba(142,201,220,.35);overflow:hidden;touch-action:manipulation}
+#wt.on{display:block}
+#wt .hud{position:absolute;top:8px;left:0;right:0;text-align:center;font-weight:700;font-size:18px;color:#fff;text-shadow:0 1px 6px rgba(0,0,0,.85);pointer-events:none;padding:0 8px}
+.drop{position:absolute;width:44px;height:44px;margin:-22px 0 0 -22px;border:0;border-radius:50%;background:rgba(255,255,255,.85);font-size:30px;line-height:1;padding:0;animation:pop .25s}
+@keyframes pop{from{transform:scale(.3)}to{transform:scale(1)}}
+#minibtn{width:100%;margin-top:10px}
+.row>*+*,.mh>*+*{margin-left:10px}
+button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%}
+@supports not (aspect-ratio:1){.plot{height:62px}}
+</style>
+</head>
+<body>
+<noscript><div style="background:#b00020;color:#fff;padding:12px;font:15px sans-serif">Игра не запустилась: этот просмотр не выполняет скрипты. Откройте игру по ссылке в Safari, а не файлом.</div></noscript>
+<main>
+  <div class="top"><div class="money" id="money"></div><div class="day" id="day"></div></div>
+  <div class="evb" id="evb" style="display:none"></div>
+  <button class="act" id="bmerch" style="display:none;width:100%;margin-bottom:8px"></button>
+  <div class="stockrow"><span id="stock"></span><button class="act mini" id="sellall">Продать всё</button></div>
+  <h2>Что сажаем</h2>
+  <div class="seeds" id="seeds"></div>
+  <div class="seeds" id="rareseeds" style="margin-top:6px"></div>
+  <h2>Поле</h2>
+  <div class="fw" id="fw"><div class="field" id="field"></div><div id="wt"><div class="hud" id="hud"></div></div></div>
+  <button class="act" id="minibtn">Мини-игра: ускорить время</button>
+  <div class="btns"><button class="act" id="bmarket">💰 Рынок</button><button class="act" id="bups">⬆️ Улучшения</button><button class="act" id="bbuild">🏗 Постройки</button></div>
+  <h2>Заказы</h2>
+  <div id="order1"></div>
+  <button class="act mini" id="ordmore" style="display:none">Развернуть</button>
+  <div class="msg" id="msg">Выберите семена и нажмите на пустую грядку.</div>
+</main>
+<div class="modal" id="m-market"><div class="box"><div class="mh"><h2>Рынок</h2><span class="mm"></span><button class="x">✕</button></div><div class="hint mmsg"></div><div id="market"></div><div class="row" id="eggrow" style="display:none"><div class="nm" id="eggtxt"></div><button class="act" id="eggsell">Продать</button></div></div></div>
+<div class="modal" id="m-ups"><div class="box"><div class="mh"><h2>Улучшения</h2><span class="mm"></span><button class="x">✕</button></div><div class="hint mmsg"></div><div id="ups"></div><button class="act" id="land" style="width:100%"></button><button class="act" id="prest" style="width:100%;margin-top:8px"></button></div></div>
+<div class="modal" id="m-orders"><div class="box"><div class="mh"><h2>Заказы</h2><span class="mm"></span><button class="x">✕</button></div><div class="hint mmsg"></div><div id="orders"></div></div></div>
+<div class="modal" id="m-crops"><div class="box"><div class="mh"><h2>Новые культуры</h2><span class="mm"></span><button class="x">✕</button></div><div class="hint mmsg"></div><div id="crops"></div></div></div>
+<div class="modal" id="m-build"><div class="box"><div class="mh"><h2>Постройки</h2><span class="mm"></span><button class="x">✕</button></div><div class="hint mmsg"></div>
+<div class="row"><div class="nm">🧍 Пугало · 100 💰<span>Занимает клетку и защищает клетки вокруг от вредителей (4, после улучшения 8)</span></div><button class="act" id="tsc">Выбрать</button></div>
+<div class="row"><div class="nm">🏠 Теплица · 150 💰<span>Клетка растёт в 1,5 раза быстрее и не страдает от засухи</span></div><button class="act" id="tgh">Выбрать</button></div>
+<div class="row"><div class="nm">🏡 Амбар · 200 💰<span>Занимает клетку. В амбаре живёт курица: она несёт яйца, пока её кормят</span></div><button class="act" id="tbn">Выбрать</button></div>
+</div></div>
+<div class="modal" id="m-barn"><div class="box"><div class="mh"><h2>Амбар</h2><span class="mm"></span><button class="x">✕</button></div><div class="hint mmsg"></div><div id="barnbody"></div></div></div>
+<div class="modal" id="m-merch"><div class="box"><div class="mh"><h2>Торговец</h2><span class="mm"></span><button class="x">✕</button></div><div class="hint mmsg"></div><div id="merchbody"></div></div></div>
+<div id="start"><div class="box">
+  <h1>🌾 Ферма</h1>
+  <p>Выращивайте урожай, продавайте его и развивайте хозяйство.</p>
+  <button class="act" id="btnCont" style="width:100%;margin-top:12px">Продолжить</button>
+  <button class="act" id="btnNew" style="width:100%;margin-top:8px">Новая игра</button>
+</div></div>
+<div id="intro" style="display:none"><div class="box">
+  <h1>Добро пожаловать на ферму</h1>
+  <p>🌱 Выберите семена и нажмите на пустую грядку, чтобы посадить. Семена стоят денег.</p>
+  <p>🌾 Когда растение вырастет, нажмите на него, чтобы собрать урожай.</p>
+  <p>💰 Продавайте урожай на рынке: цены меняются каждый день. Деньги тратьте на улучшения и новые участки.</p>
+  <p>🌙 Ночью приходят вредители 🐀: нажимайте на них, пока они не съели урожай. Пугало защищает клетки рядом.</p>
+  <p>📦 Выполняйте заказы, нанимайте работников и следите за погодой: дождь ускоряет рост, засуха замедляет.</p>
+  <p>💧 Мини-игра ускоряет рост: нажимайте на капли над грядками: каждая ускоряет рост своей грядки.</p>
+  <button class="act" id="introgo" style="width:100%;margin-top:12px">Играть</button>
+</div></div>
+<script>
+var C={
+  wheat:{n:'Пшеница',e:'🌾',seed:5,grow:1,base:12,unlock:0},
+  carrot:{n:'Морковь',e:'🥕',seed:10,grow:2,base:28,unlock:0},
+  potato:{n:'Картофель',e:'🥔',seed:15,grow:3,base:50,unlock:60},
+  tomato:{n:'Помидоры',e:'🍅',seed:20,grow:3,base:66,unlock:120},
+  pumpkin:{n:'Тыква',e:'🎃',seed:25,grow:4,base:85,unlock:0},
+  strawberry:{n:'Клубника',e:'🍓',seed:40,grow:5,base:150,unlock:250},
+  corn:{n:'Кукуруза',e:'🌽',seed:60,grow:6,base:240,unlock:450},
+  melon:{n:'Арбуз',e:'🍉',seed:100,grow:8,base:480,unlock:800}
+};
+var MAX_PLOTS=25, SALARY=75;
+function fresh(){
+  var o={money:40,gt:0,sel:'wheat',plots:[],inv:{},gold:{},up:{water:0,gold:0,ad:0,rat:0,time:0,barn:0,sc:0,drops:0,hs:0,hc:0,hw:0,ls:0,lc:0,lw:0},unl:{wheat:1,carrot:1,pumpkin:1},orders:[],oid:0,ev:null,wacc:0,idle:false,pres:0,earned:0,tool:null,eggs:0,wk:{},bi:0,rare:{},purple:0,chickens:0,merch:null,rsel:null,price:{},prev:{}};
+  for(var k in C){o.inv[k]=0;o.gold[k]=0}
+  for(var i=0;i<10;i++)o.plots.push(null);
+  o.cell=o.plots.map(function(){return {}});
+  return o;
+}
+var s=fresh();
+var E={};
+function $(id){return E[id]||(E[id]=document.getElementById(id))}
+function say(t){$('msg').textContent=t;var a=document.querySelectorAll('.mmsg');for(var i=0;i<a.length;i++)a[i].textContent=t}
+function newPrices(){s.prev.egg=s.price.egg||25;s.price.egg=Math.max(1,Math.round(25*(0.45+Math.random()*1.3)*(s.ev&&s.ev.t==='dry'?1.3:1)));
+  for(var k in C){
+    s.prev[k]=s.price[k]||C[k].base;
+    s.price[k]=Math.max(1,Math.round(C[k].base*(0.45+Math.random()*1.3)*(s.ev&&s.ev.t==='dry'?1.3:1)));
+  }
+}
+newPrices();
+
+var seedBtns={},mRows={},plotBtns=[],upRows={};
+var seedPlus=null;
+function buildSeeds(){
+  for(var k in C){
+    (function(k){
+      var b=document.createElement('button');
+      b.className='seed';
+      b.onclick=function(){var c=C[k];s.tool=null;s.rsel=null;s.sel=k;say('Растёт '+c.grow+' дн. Продаётся примерно за '+c.base+' 💰.');update()};
+      seedBtns[k]=b;$('seeds').appendChild(b);
+    })(k);
+  }
+  var p=document.createElement('button');
+  p.className='seed';p.innerHTML='<b>＋</b>Новые<br>культуры';
+  p.onclick=function(){openM('m-crops')};
+  seedPlus=p;$('seeds').appendChild(p);
+}
+function buildField(){
+  var f=$('field');f.innerHTML='';plotBtns=[];
+  s.plots.forEach(function(_,i){
+    var b=document.createElement('button');
+    b.className='plot empty';
+    b.onclick=function(){clickPlot(i)};
+    plotBtns.push(b);f.appendChild(b);
+  });
+}
+function buildMarket(){
+  for(var k in C){
+    (function(k){
+      var r=document.createElement('div');r.className='row';
+      r.innerHTML='<div class="nm"></div><button class="act">Продать всё</button>';
+      r.lastChild.onclick=function(){sell(k)};
+      mRows[k]=r;$('market').appendChild(r);
+    })(k);
+  }
+}
+var GOLD_MAX_LVL=9;
+function goldChance(){return 0.05+0.05*s.up.gold}
+function waterSec(){return 3+s.up.water}
+function dropCap(){return 3+s.up.drops}
+function upCost(k){return UP[k].c(s.up[k])}
+function plant(i){var c=C[s.sel];s.money-=c.seed;s.plots[i]={k:s.sel,prog:0,g:Math.random()<goldChance()}}
+var UP={
+  water:{max:15,c:function(l){return Math.round(30*Math.pow(1.4,l))},
+    t:function(){return '💧 Полив · +'+waterSec()+' сек за каплю<span>Улучшение: +1 сек</span>'},
+    m:function(){return 'Полив улучшен: +'+waterSec()+' сек за каплю.'}},
+  drops:{max:9,c:function(l){return Math.round(40*Math.pow(1.5,l))},
+    t:function(){return '💧 Капли · одновременно '+dropCap()+'<span>Улучшение: +1 капля в мини-игре</span>'},
+    m:function(){return 'Теперь одновременно '+dropCap()+' капель.'}},
+  gold:{max:9,c:function(l){return Math.round(60*Math.pow(1.6,l))},
+    t:function(){return '✨ Шанс золота · '+Math.round(goldChance()*100)+'%<span>Улучшение: +5% (максимум 50%)</span>'},
+    m:function(){return 'Шанс золота: '+Math.round(goldChance()*100)+'%.'}},
+  ad:{max:5,c:function(l){return Math.round(80*Math.pow(1.7,l))},
+    t:function(){return '📣 Реклама · шанс заказа в день '+Math.round(orderChance()*100)+'%<span>Улучшение: заказы приходят чаще</span>'},
+    m:function(){return 'Реклама улучшена: заказы будут приходить чаще.'}},
+  barn:{max:10,c:function(l){return Math.round(50*Math.pow(1.6,l))},
+    t:function(){return '🧺 Склад · вместимость '+barnCap()+'<span>Улучшение: +20 мест для урожая</span>'},
+    m:function(){return 'Склад увеличен: '+barnCap()+' мест.'}},
+  sc:{max:1,c:function(){return 800},
+    t:function(){return '🧍 Пугала · защищают '+(s.up.sc?8:4)+' клеток вокруг<span>Улучшение: 8 клеток (дорого)</span>'},
+    m:function(){return 'Пугала теперь защищают 8 клеток вокруг.'}},
+  rat:{max:8,c:function(l){return Math.round(70*Math.pow(1.6,l))},
+    t:function(){return '🛡 Защита от грызунов · −'+Math.round((1-Math.pow(0.8,s.up.rat))*100)+'% крыс<span>Улучшение: крысы появляются реже</span>'},
+    m:function(){return 'Грызунов будет меньше на '+Math.round((1-Math.pow(0.8,s.up.rat))*100)+'%.'}},
+  time:{max:6,c:function(l){return Math.round(70*Math.pow(1.7,l))},
+    t:function(){return '⏳ Срок заказов · '+orderLife()+' дн.<span>Улучшение: +1 день</span>'},
+    m:function(){return 'Заказы теперь висят '+orderLife()+' дн.'}},
+};
+function wper(t){var l=s.up['l'+t];return t==='s'?Math.max(6,20-2*l):Math.max(1.5,5-0.4*l)}
+var WN={s:['🧾','Продавец','продаёт весь урожай и яйца'],c:['🧺','Сборщик','собирает урожай и сажает выбранную культуру'],w:['🚿','Поливальщик','поливает грядки без мини-игры']};
+['s','c','w'].forEach(function(t){
+  UP['h'+t]={max:3,c:function(l){return 150*Math.pow(2,l)},
+    t:function(){return WN[t][0]+' '+WN[t][1]+' · нанято '+s.up['h'+t]+'<span>'+WN[t][2]+'. Зарплата '+SALARY+' 💰 в день</span>'},
+    m:function(){return 'Нанят работник: '+WN[t][1]+'.'}};
+  UP['l'+t]={max:8,c:function(l){return Math.round(60*Math.pow(1.6,l))},
+    t:function(){return '⚡ '+WN[t][1]+': раз в '+wper(t).toFixed(1).replace('.',',')+' с<span>Улучшение: работает быстрее</span>'},
+    m:function(){return WN[t][1]+' работает быстрее.'}};
+});
+function wjob(k,n,per,f){if(!n)return;s.wk[k]=(s.wk[k]||0)+0.2*n;while(s.wk[k]>=per){s.wk[k]-=per;f()}}
+function workerTick(){
+  if(s.idle)return;
+  wjob('s',s.up.hs,wper('s'),sellAllStock);
+  wjob('c',s.up.hc,wper('c'),workerAct);
+  wjob('w',s.up.hw,wper('w'),workerWater);
+}
+function workerWater(){
+  var c=[];s.plots.forEach(function(p){if(p&&p.prog<C[p.k].grow)c.push(p)});
+  if(c.length)c[Math.floor(Math.random()*c.length)].prog+=waterSec()*0.05;
+}
+function sellAllStock(){
+  var t=0;
+  for(var k in C){var n=s.inv[k],g=s.gold[k];if(n||g){t+=Math.round((n+2*g)*s.price[k]*pm());s.inv[k]=0;s.gold[k]=0}}
+  if(s.eggs){t+=Math.round(s.eggs*s.price.egg*pm());s.eggs=0}
+  s.money+=t;s.earned+=t;return t;
+}
+function buildUps(){
+  Object.keys(UP).forEach(function(k){
+    var r=document.createElement('div');r.className='row';
+    r.innerHTML='<div class="nm"></div><button class="act"></button>';
+    r.lastChild.onclick=function(){
+      var u=UP[k],cost=upCost(k);
+      if(s.up[k]>=u.max)return;
+      if(s.money<cost){say('Не хватает денег.');return}
+      s.money-=cost;s.up[k]++;say(u.m());update();
+    };
+    upRows[k]=r;$('ups').appendChild(r);
+  });
+}
+function setT(el,t){if(el.textContent!==t)el.textContent=t}
+function setC(el,c){if(el.className!==c)el.className=c}
+function setD(el,v){if(el.style.display!==v)el.style.display=v}
+function setH(el,v){if(el._h!==v){el.innerHTML=v;el._h=v}}
+function orderLife(){return 3+s.up.time}
+function orderChance(){return Math.min(0.9,0.3+0.12*s.up.ad)}
+function newOrder(){
+  var ks=Object.keys(C).filter(function(k){return s.unl[k]});
+  var k=ks[Math.floor(Math.random()*ks.length)],b=C[k].base;
+  var n=Math.max(2,Math.round((120+Math.random()*180)/b));
+  s.orders.push({id:++s.oid,k:k,n:n,pay:Math.round(n*b*1.8),until:s.gt+orderLife()});
+  say('📦 Новый заказ: '+n+' × '+C[k].n+'.');
+}
+function fulfill(id){
+  var o=s.orders.filter(function(x){return x.id===id})[0];if(!o)return;
+  if(s.inv[o.k]+s.gold[o.k]<o.n){say('Не хватает урожая для заказа.');return}
+  var t=Math.min(o.n,s.inv[o.k]);s.inv[o.k]-=t;s.gold[o.k]-=o.n-t;
+  var pv=Math.round(o.pay*pm());s.money+=pv;s.earned+=pv;s.orders=s.orders.filter(function(x){return x!==o});
+  say('Заказ выполнен: +'+pv+' 💰.');update();
+}
+var ordSig=null;
+function ordRow(o){
+  var ok=(s.inv[o.k]+s.gold[o.k])>=o.n;
+  return '<div class="row"><div class="nm">📦 '+C[o.k].e+' '+o.n+' × '+C[o.k].n+'<span>Награда '+o.pay+' 💰 · осталось дней: '+Math.ceil(o.until-s.gt)+'</span></div><button class="act" data-id="'+o.id+'"'+(ok?'':' disabled')+'>Выполнить</button></div>';
+}
+function renderOrders(){
+  var sig=s.orders.map(function(o){return o.id+':'+((s.inv[o.k]+s.gold[o.k])>=o.n?1:0)+':'+Math.ceil(o.until-s.gt)}).join('|');
+  if(sig===ordSig)return;ordSig=sig;
+  var empty='<div class="hint">Заказов пока нет. Реклама поможет им появляться чаще.</div>';
+  $('orders').innerHTML=s.orders.length?s.orders.map(ordRow).join(''):empty;
+  $('order1').innerHTML=s.orders.length?ordRow(s.orders[0]):empty;
+  var mb=$('ordmore');mb.style.display=s.orders.length>1?'':'none';mb.textContent='Развернуть (ещё '+(s.orders.length-1)+')';
+}
+function ordClick(e){var b=e.target.closest?e.target.closest('button'):null;if(b&&!b.disabled)fulfill(+b.getAttribute('data-id'))}
+$('orders').onclick=ordClick;$('order1').onclick=ordClick;
+function workerAct(){
+  if(s.idle)return;
+  for(var i=0;i<s.plots.length;i++){
+    var p=s.plots[i];
+    if(p&&p.prog>=C[p.k].grow&&!p.dead&&!p.e&&stockTotal()<barnCap()){if(p.g)s.gold[p.k]++;else s.inv[p.k]++;s.plots[i]=null;return}
+  }
+  if(!s.unl[s.sel]||s.money<C[s.sel].seed)return;
+  for(var j=0;j<s.plots.length;j++){if(!s.plots[j]&&!s.cell[j].sc&&!s.cell[j].b){plant(j);return}}
+}
+var cropSig=null;
+function renderCrops(){
+  var lk=Object.keys(C).filter(function(k){return !s.unl[k]});
+  if(seedPlus)seedPlus.style.display=lk.length?'':'none';
+  var sig=lk.map(function(k){return k+(s.money>=C[k].unlock?1:0)}).join('|');
+  if(sig===cropSig)return;cropSig=sig;
+  $('crops').innerHTML=lk.length?lk.map(function(k){var c=C[k];return '<div class="row"><div class="nm">'+c.e+' '+c.n+'<span>Семя '+c.seed+' 💰 · растёт '+c.grow+' дн. · продаётся около '+c.base+' 💰</span></div><button class="act" data-k="'+k+'"'+(s.money>=c.unlock?'':' disabled')+'>'+c.unlock+' 💰</button></div>'}).join(''):'<div class="hint">Все культуры открыты.</div>';
+}
+function unlockCrop(k){var c=C[k];if(s.unl[k]||s.money<c.unlock)return;s.money-=c.unlock;s.unl[k]=1;say('Открыто: '+c.n+'! Она появилась в списке семян.');update()}
+$('crops').onclick=function(e){var b=e.target.closest?e.target.closest('button'):null;if(b&&!b.disabled)unlockCrop(b.getAttribute('data-k'))};
+function landCost(){return Math.round(80*Math.pow(1.3,s.plots.length-10))}
+function pm(){return 1+0.05*s.pres}
+function barnCap(){return 30+20*s.up.barn}
+function stockTotal(){var t=0;for(var k in C)t+=s.inv[k]+s.gold[k];return t}
+function ratChance(){return 0.2*Math.pow(0.8,s.up.rat)}
+function nightNow(){return s.gt%1>=50/65}
+function guarded(i){
+  var r=s.up.sc?8:4,ri=Math.floor(i/5),ci=i%5;
+  for(var j=0;j<s.cell.length;j++){
+    if(!s.cell[j].sc)continue;
+    var dr=Math.abs(Math.floor(j/5)-ri),dc=Math.abs(j%5-ci);
+    if(r===4?dr+dc===1:Math.max(dr,dc)===1)return true;
+  }
+  return false;
+}
+var lastNight=false;
+function pestTick(){
+  var nn=nightNow();
+  if(nn&&!lastNight){var nm='🌙 Наступает ночь! Приготовьтесь: придут грызуны.';if($('wt').classList.contains('on'))closeMini(nm);else say(nm)}
+  lastNight=nn;
+  s.plots.forEach(function(p,i){if(p&&p.pest){p.pest--;if(p.pest<=0){s.plots[i]=null;say('🐀 Вредитель съел растение!')}}});
+  if(nightNow()&&Math.random()<ratChance()){
+    var c=[];s.plots.forEach(function(p,i){if(p&&!p.dead&&!p.pest&&!guarded(i))c.push(i)});
+    if(c.length)s.plots[c[Math.floor(Math.random()*c.length)]].pest=25;
+  }
+}
+function merchSlots(){
+  var ks=Object.keys(C).filter(function(k){return s.unl[k]}).sort(function(){return Math.random()-0.5}).slice(0,3);
+  var sl=ks.map(function(k){return {k:k,left:10,price:Math.round(C[k].seed*1.5)}});
+  if(sl.length>2&&Math.random()<0.5)sl[2]={k:'chicken',left:2,coin:5};
+  return sl;
+}
+function plantRare(i){
+  var k=s.rsel;
+  if(!(s.rare[k]>0)){s.rsel=null;say('Редкие семена закончились.');update();return}
+  s.rare[k]--;if(!s.rare[k])s.rsel=null;
+  var r=Math.random(),o={k:k,prog:0,g:false};
+  if(r<0.2)o.dead=true;else if(r<0.5){}else if(r<0.9)o.g=true;else o.e=true;
+  s.plots[i]=o;say('Посажено редкое семя: '+C[k].n+'. Результат станет ясен, когда оно вырастет.');update();
+}
+var rareSig=null;
+function renderRare(){
+  var ks=Object.keys(s.rare).filter(function(k){return s.rare[k]>0});
+  var sig=ks.map(function(k){return k+s.rare[k]}).join()+'|'+s.rsel;
+  if(sig===rareSig)return;rareSig=sig;
+  $('rareseeds').innerHTML=ks.map(function(k){return '<button class="seed rare'+(s.rsel===k?' on':'')+'" data-r="'+k+'"><b>'+C[k].e+'</b>★ '+s.rare[k]+'</button>'}).join('');
+}
+$('rareseeds').onclick=function(e){
+  var b=e.target.closest?e.target.closest('button'):null;if(!b)return;
+  var k=b.getAttribute('data-r');s.rsel=(s.rsel===k?null:k);s.tool=null;
+  say(s.rsel?'Выбрано редкое семя: '+C[k].n+'. Результат непредсказуем.':'Выбраны обычные семена.');update();
+};
+function renderMerch(){
+  var m=s.merch,h='';
+  if(!m){$('merchbody').innerHTML='<div class="hint">Торговец уехал.</div>';return}
+  h='<div class="hint">Из редкого семени: 20% погибнет, 30% обычное, 40% золотое, 10% легендарное (даёт 🟣). Ваши монеты: '+s.purple+' 🟣</div>';
+  m.slots.forEach(function(sl,i){
+    if(sl.k==='chicken')h+='<div class="row"><div class="nm">🐔 Курица · '+sl.coin+' 🟣<span>Осталось: '+sl.left+'. Селится в амбаре</span></div><button class="act" data-m="'+i+'" data-n="1"'+(sl.left&&s.purple>=sl.coin?'':' disabled')+'>Купить</button></div>';
+    else{var ok=sl.left&&s.money>=sl.price?'':' disabled';h+='<div class="row"><div class="nm">'+C[sl.k].e+' '+C[sl.k].n+' · редкое семя '+sl.price+' 💰<span>Осталось: '+sl.left+' · у вас: '+(s.rare[sl.k]||0)+'</span></div><button class="act" data-m="'+i+'" data-n="1"'+ok+'>×1</button><button class="act" data-m="'+i+'" data-n="10"'+ok+'>Макс</button></div>'}
+  });
+  $('merchbody').innerHTML=h;
+}
+$('merchbody').onclick=function(e){
+  var b=e.target.closest?e.target.closest('button'):null;if(!b||b.disabled||!s.merch)return;
+  var sl=s.merch.slots[+b.getAttribute('data-m')],n=+b.getAttribute('data-n');
+  if(sl.k==='chicken'){if(s.purple<sl.coin||!sl.left)return;s.purple-=sl.coin;sl.left--;s.chickens++;say('Куплена курица. Поселите её в амбаре.')}
+  else{var can=Math.min(sl.left,Math.floor(s.money/sl.price)),q=n===1?Math.min(1,can):can;if(!q)return;s.money-=q*sl.price;sl.left-=q;s.rare[sl.k]=(s.rare[sl.k]||0)+q;say('Куплено редких семян: '+q+'.')}
+  renderMerch();update();
+};
+function useTool(i){
+  var t=s.tool,cl=s.cell[i],cost=t==='sc'?100:t==='gh'?150:200;s.tool=null;
+  if(t!=='gh'&&(cl.sc||cl.b||s.plots[i])){say('Нужна свободная клетка.');return}
+  if(t==='gh'&&(cl.gh||cl.sc||cl.b)){say('Здесь теплицу не построить.');return}
+  if(s.money<cost){say('Не хватает денег: нужно '+cost+' 💰.');return}
+  s.money-=cost;cl[t]=1;say(t==='sc'?'Пугало поставлено.':t==='gh'?'Теплица построена: растёт быстрее и не боится засухи.':'Амбар построен. Нажмите на него, чтобы поселить курицу (её продаёт торговец).');update();
+}
+var FEED={wheat:30,corn:60,carrot:20,tomato:20,strawberry:25};
+function renderBarn(){
+  var cl=s.cell[s.bi],h='';
+  if(!cl||!cl.b)return;
+  if(!cl.ch)h=s.chickens>0?'<div class="row"><div class="nm">🐔 Курица · у вас: '+s.chickens+'<span>Несёт яйца, пока сыта. Яйца продаются на рынке.</span></div><button class="act" id="bplace">Поселить</button></div>':'<div class="hint">Курицу можно купить только у странствующего торговца за 5 🟣.</div>';
+  else{
+    h='<div class="hint" id="bfood"></div>';
+    Object.keys(FEED).forEach(function(k){var n=s.inv[k]+s.gold[k];h+='<div class="row"><div class="nm">'+C[k].e+' '+C[k].n+'<span>На складе: '+n+' · даёт '+FEED[k]+' с еды</span></div><button class="act" data-f="'+k+'"'+(n?'':' disabled')+'>Покормить</button></div>'});
+  }
+  $('barnbody').innerHTML=h;
+}
+$('barnbody').onclick=function(e){
+  var b=e.target.closest?e.target.closest('button'):null;if(!b||b.disabled)return;
+  var cl=s.cell[s.bi];
+  if(b.id==='bplace'){if(s.chickens<=0)return;s.chickens--;cl.ch=1;cl.food=0;cl.lay=0;say('Курица поселилась. Покормите её.')}
+  else{var k=b.getAttribute('data-f');if(cl.food+FEED[k]>120){say('Курица сыта.');return}if(s.inv[k]>0)s.inv[k]--;else if(s.gold[k]>0)s.gold[k]--;else return;cl.food+=FEED[k];say('Курица накормлена.')}
+  renderBarn();update();
+};
+function chickTick(){s.cell.forEach(function(c){if(!c.ch)return;if(c.food>0){c.food-=0.2;c.lay=(c.lay||0)+0.2;if(c.lay>=30){c.lay-=30;s.eggs++}}else c.food=0})}
+function clickPlot(i){
+  var p=s.plots[i],cl=s.cell[i];
+  if(s.tool){useTool(i);return}
+  if(cl.b){s.bi=i;renderBarn();openM('m-barn');return}
+  if(cl.sc){say('Здесь стоит пугало.');return}
+  if(p&&p.pest){p.pest=0;s.money+=3;say('🐀 Вредитель пойман! +3 💰');update();return}
+  if(!p){
+    if(s.rsel){plantRare(i);return}
+    var c=C[s.sel];
+    if(s.money<c.seed){say('Не хватает денег на семена.');return}
+    plant(i);say('Посажено: '+c.n+'.');
+  }else if(p.prog>=C[p.k].grow){
+    if(p.dead){say('Растение погибло. Оно исчезнет с началом нового дня.');return}
+    if(p.e){s.purple++;s.plots[i]=null;say('🟣 Легендарное растение! Получена фиолетовая монета.');update();return}
+    if(stockTotal()>=barnCap()){say('Склад полон! Продайте урожай или улучшите склад.');return}
+    if(p.g)s.gold[p.k]++;else s.inv[p.k]++;
+    s.plots[i]=null;
+    say(p.g?'Собрано золотое: '+C[p.k].n+'! ✨ Продаётся вдвое дороже.':'Собрано: '+C[p.k].n+'.');
+  }else{say('Ещё не созрело.')}
+  update();
+}
+function sell(k){
+  var n=s.inv[k],g=s.gold[k];if(!n&&!g)return;
+  var sum=Math.round((n+g*2)*s.price[k]*pm());s.money+=sum;s.earned+=sum;s.inv[k]=0;s.gold[k]=0;
+  say('Продано '+(n+g)+' шт. за '+sum+' 💰.'+(g?' Золотых: '+g+' ✨':''));update();
+}
+$('land').onclick=function(){
+  if(s.plots.length>=MAX_PLOTS)return;
+  if(s.money<landCost()){say('Не хватает денег на участок.');return}
+  s.money-=landCost();s.plots.push(null);s.cell.push({});buildField();say('Куплен новый участок.');update();
+};
+function update(){
+  setT($('money'),Math.floor(s.money)+' 💰');
+  setT($('day'),(nightNow()?'🌙':'☀️')+' День '+(Math.floor(s.gt)+1));
+  setT($('stock'),'Склад '+stockTotal()+'/'+barnCap()+(s.eggs?' · 🥚 '+s.eggs:'')+(s.purple?' · 🟣 '+s.purple:''));
+  setC($('fw'),'fw'+(nightNow()?' night':''));
+  for(var k in C){
+    var cr=C[k],sh='<b>'+cr.e+'</b>'+cr.n+'<br>семя '+cr.seed+' 💰';
+    if(seedBtns[k]._h!==sh){seedBtns[k].innerHTML=sh;seedBtns[k]._h=sh}
+    setC(seedBtns[k],'seed'+(s.sel===k&&!s.rsel?' on':''));
+    setD(seedBtns[k],s.unl[k]?'':'none');
+    setD(mRows[k],s.unl[k]?'':'none');
+    var d=s.price[k]-s.prev[k];
+    var arrow=d>0?'<span class="up">▲</span>':(d<0?'<span class="down">▼</span>':'');
+    var nm=mRows[k].firstChild;
+    setH(nm,C[k].e+' '+C[k].n+' · '+s.price[k]+' 💰 '+arrow+'<span>На складе: '+s.inv[k]+(s.gold[k]?' · золотых: '+s.gold[k]+' ✨':'')+'</span>');
+    mRows[k].lastChild.disabled=!(s.inv[k]||s.gold[k]);
+  }
+  s.plots.forEach(function(p,i){
+    var b=plotBtns[i],cl=s.cell[i],gx=cl.gh?' gh':'',cls,html;
+    if(cl.b){cls='plot barn';html='🏡<small>'+(cl.ch?'🐔 '+Math.ceil(cl.food)+' с':'пусто')+'</small>'}
+    else if(cl.sc){cls='plot sc'+gx;html='🧍<small>пугало</small>'}
+    else if(!p){cls='plot empty'+gx;html='＋'}
+    else if(p.pest){cls='plot pest';html='🐀'}
+    else{
+      var pr=p.prog/C[p.k].grow;
+      if(pr<1){cls='plot'+gx;html='🌱<small>'+Math.floor(pr*100)+'%</small>'}
+      else if(p.dead){cls='plot dead'+gx;html='🥀'}
+      else if(p.e){cls='plot ready epic'+gx;html=C[p.k].e+'🟣'}
+      else{cls='plot ready'+(p.g?' gold':'')+gx;html=C[p.k].e+(p.g?'✨':'')}
+    }
+    setC(b,cls);setH(b,html);
+  });
+  Object.keys(UP).forEach(function(k){
+    var u=UP[k],r=upRows[k],c=upCost(k),mx=s.up[k]>=u.max,t=u.t();
+    if(r.firstChild._h!==t){r.firstChild.innerHTML=t;r.firstChild._h=t}
+    setT(r.lastChild,mx?'Максимум':c+' 💰');r.lastChild.disabled=mx||s.money<c;
+  });
+  if(!presArmed)setT($('prest'),'⭐ Престиж: +5% к прибыли · '+Math.floor(s.earned)+'/'+presNeed()+' 💰');
+  renderRare();
+  var mb=$('bmerch');
+  if(s.merch){setD(mb,'');setT(mb,'🧳 Торговец редкими семенами · осталось дней: '+Math.max(1,Math.ceil(s.merch.until-s.gt)))}else setD(mb,'none');
+  var hasCh=s.cell.some(function(c){return c.ch});
+  setD($('eggrow'),(hasCh||s.eggs>0)?'':'none');
+  var et='🥚 Яйца · '+(s.price.egg||25)+' 💰<span>На складе: '+s.eggs+'</span>',en=$('eggtxt');
+  if(en._h!==et){en.innerHTML=et;en._h=et}
+  $('eggsell').disabled=!s.eggs;
+  var bf=document.getElementById('bfood'),bc=s.cell[s.bi];
+  if(bf&&bc&&bc.ch)setT(bf,'🐔 Еды на '+Math.ceil(bc.food)+' с · яиц на складе: '+s.eggs);
+  var mms=document.querySelectorAll('.mm'),mt=Math.floor(s.money)+' 💰';
+  for(var q=0;q<mms.length;q++)setT(mms[q],mt);
+  renderOrders();renderCrops();
+  var eb=$('evb');
+  if(s.ev){setD(eb,'');setT(eb,(s.ev.t==='rain'?'🌧 Дождь: растения растут быстрее':'☀️ Засуха: рост медленнее, цены выше')+' · осталось дней: '+Math.ceil(s.ev.until-s.gt))}
+  else setD(eb,'none');
+  var L=$('land');
+  if(s.plots.length>=MAX_PLOTS){L.textContent='Все участки куплены';L.disabled=true}
+  else L.textContent='Купить участок · '+landCost()+' 💰';
+  if($('wt').classList.contains('on')&&!growing())closeMini('Все растения выросли — мини-игра закрыта.');
+}
+buildSeeds();buildField();buildMarket();buildUps();update();
+function advance(d){
+  var o=Math.floor(s.gt);s.gt+=d;
+  var sp=s.ev?s.ev.mul:1;
+  s.plots.forEach(function(p,i){if(p)p.prog+=d*3.25*(s.cell[i].gh?1.5*Math.max(sp,1):sp)});
+  
+  if(Math.floor(s.gt)>o)newDay();
+}
+function newDay(){
+  if(s.ev&&s.gt>=s.ev.until){s.ev=null;say('Погода наладилась.')}
+  else if(!s.ev&&Math.random()<0.3){
+    var rain=Math.random()<0.5;
+    s.ev={t:rain?'rain':'dry',mul:rain?1.5:0.5,until:s.gt+1+Math.floor(Math.random()*2)};
+    say(rain?'🌧 Дождь! Растения растут быстрее.':'☀️ Засуха! Растения растут медленнее, а цены выше.');
+  }
+  newPrices();
+  s.plots.forEach(function(p,i){if(p&&p.dead&&p.prog>=C[p.k].grow)s.plots[i]=null});
+  if(s.merch&&s.gt>=s.merch.until){s.merch=null;closeM('m-merch');say('Торговец уехал.')}
+  else if(!s.merch&&Math.random()<0.25){s.merch={until:s.gt+2,slots:merchSlots()};say('🧳 Приехал торговец с редкими семенами! Он здесь ненадолго.')}
+  var n0=s.orders.length;
+  s.orders=s.orders.filter(function(o){return o.until>s.gt});
+  if(s.orders.length<n0)say('Один из заказов истёк.');
+  if(s.orders.length<3&&Math.random()<orderChance())newOrder();
+  var pay=(s.up.hs+s.up.hc+s.up.hw)*SALARY;s.idle=false;
+  if(pay){if(s.money>=pay)s.money-=pay;else{s.idle=true;say('Не хватило денег на зарплату: работники отдыхают.')}}
+}
+var wt={on:false,score:0,left:0,t:null,sp:null};
+function hud(t){$('hud').textContent=t}
+function wEnd(){
+  clearInterval(wt.t);clearInterval(wt.sp);
+  var was=wt.on;wt.on=false;
+  var d=$('wt').querySelectorAll('.drop');
+  for(var i=0;i<d.length;i++)d[i].parentNode.removeChild(d[i]);
+  if(was){hud('\u0423\u0441\u043a\u043e\u0440\u0435\u043d\u043e \u043d\u0430 '+wt.score.toFixed(1)+' \u0441\u0435\u043a. \u041d\u0430\u0436\u043c\u0438\u0442\u0435, \u0447\u0442\u043e\u0431\u044b \u043f\u043e\u043b\u0438\u0442\u044c \u0435\u0449\u0451');say('\u0412\u0440\u0435\u043c\u044f \u0443\u0441\u043a\u043e\u0440\u0435\u043d\u043e \u043d\u0430 '+wt.score.toFixed(1)+' \u0441\u0435\u043a.')}
+}
+function wHud(){hud('💧 Выросло на '+Math.round(wt.score)+' сек · капель: '+dropCap())}
+function wSpawn(){
+  var cur=$('wt').querySelectorAll('.drop');
+  if(cur.length>=dropCap())return;
+  var used={},c=[];
+  for(var q=0;q<cur.length;q++)used[cur[q].getAttribute('data-p')]=1;
+  s.plots.forEach(function(p,i){if(p&&p.prog<C[p.k].grow&&!used[i])c.push(i)});
+  if(!c.length)return;
+  var i=c[Math.floor(Math.random()*c.length)],pb=plotBtns[i];
+  var b=document.createElement('button');
+  b.className='drop';b.textContent='💧';b.setAttribute('data-p',i);
+  b.style.left=(pb.offsetLeft+pb.offsetWidth/2)+'px';b.style.top=(pb.offsetTop+pb.offsetHeight/2)+'px';
+  b.onclick=function(e){
+    e.stopPropagation();
+    if(!wt.on||!b.parentNode)return;
+    b.parentNode.removeChild(b);
+    var p=s.plots[i];
+    if(p){var g=waterSec();p.prog+=g*0.05;wt.score+=g}
+    wHud();update();
+  };
+  $('wt').appendChild(b);
+  setTimeout(function(){if(b.parentNode)b.parentNode.removeChild(b)},2500);
+}
+function wStart(){wt.on=true;wt.score=0;wHud();wt.sp=setInterval(wSpawn,500);wSpawn()}
+$('wt').onclick=function(){if(!wt.on)wStart()};
+function growing(){return s.plots.some(function(p){return p&&p.prog<C[p.k].grow})}
+function openMini(){
+  if(nightNow()){say('Ночью мини-игра недоступна.');return}
+  if(!growing()){say('Нет растущих растений. Сначала посадите что-нибудь.');return}
+  $('wt').classList.add('on');$('minibtn').textContent='Закрыть мини-игру';wStart();
+}
+function closeMini(msg){
+  wEnd();$('wt').classList.remove('on');$('minibtn').textContent='Мини-игра: ускорить время';
+  if(msg)say(msg);
+}
+$('minibtn').onclick=function(){if($('wt').classList.contains('on'))closeMini();else openMini()};
+function openM(id){$(id).classList.add('on')}
+function closeM(id){$(id).classList.remove('on')}
+['m-market','m-ups','m-orders','m-crops','m-build','m-barn','m-merch'].forEach(function(id){
+  var m=$(id);
+  m.onclick=function(e){if(e.target===m)closeM(id)};
+  m.querySelector('.x').onclick=function(){closeM(id)};
+});
+$('bmarket').onclick=function(){openM('m-market')};
+$('bups').onclick=function(){openM('m-ups')};
+$('ordmore').onclick=function(){openM('m-orders')};
+$('bbuild').onclick=function(){openM('m-build')};
+$('tsc').onclick=function(){s.tool='sc';closeM('m-build');say('Нажмите на свободную клетку, чтобы поставить пугало (100 💰).')};
+$('tgh').onclick=function(){s.tool='gh';closeM('m-build');say('Нажмите на клетку, чтобы построить теплицу (150 💰).')};
+$('tbn').onclick=function(){s.tool='b';closeM('m-build');say('Нажмите на свободную клетку, чтобы построить амбар (200 💰).')};
+$('sellall').onclick=function(){var t=sellAllStock();say(t?'Продано всё на '+t+' 💰.':'Продавать нечего.');update()};
+$('eggsell').onclick=function(){var t=Math.round(s.eggs*s.price.egg*pm());if(!t)return;s.money+=t;s.earned+=t;say('Продано яиц: '+s.eggs+' за '+t+' 💰.');s.eggs=0;update()};
+$('bmerch').onclick=function(){renderMerch();openM('m-merch')};
+function presNeed(){return 3000*(s.pres+1)}
+var presArmed=false;
+$('prest').onclick=function(){
+  if(s.earned<presNeed()){say('Для престижа нужно заработать '+presNeed()+' 💰 (сейчас '+Math.floor(s.earned)+').');return}
+  if(!presArmed){presArmed=true;this.textContent='Прогресс сбросится. Нажмите ещё раз';return}
+  presArmed=false;var np=s.pres+1;s=fresh();s.pres=np;newPrices();afterLoad();save();say('Престиж '+np+'! Прибыль +'+(np*5)+'%.');
+};
+var intro=true;
+$('introgo').onclick=function(){intro=false;$('intro').style.display='none'};
+var SAVE_KEY='farm-save-v1';
+function save(){try{localStorage.setItem(SAVE_KEY,JSON.stringify(s))}catch(e){}}
+function loadSave(){try{var r=localStorage.getItem(SAVE_KEY);return r?JSON.parse(r):null}catch(e){return null}}
+function afterLoad(){
+  ordSig=null;cropSig=null;rareSig=null;
+  ['m-market','m-ups','m-orders','m-crops','m-build','m-barn','m-merch'].forEach(closeM);
+  $('wt').classList.remove('on');$('minibtn').textContent='Мини-игра: ускорить время';
+  buildField();update();
+}
+function applyState(d){
+  var f=fresh();s=f;
+  for(var k in d)if(k in f)s[k]=d[k];
+  s.up=Object.assign({},f.up,d.up||{});
+  s.inv=Object.assign({},f.inv,d.inv||{});s.gold=Object.assign({},f.gold,d.gold||{});
+  s.unl=Object.assign({},f.unl,d.unl||{});
+  if(!Array.isArray(s.plots)||!s.plots.length)s.plots=f.plots;
+  if(!s.unl[s.sel])s.sel='wheat';
+  if(!Array.isArray(s.cell)||s.cell.length!==s.plots.length)s.cell=s.plots.map(function(){return {}});
+  s.tool=null;
+  var miss=!s.price||!s.price.egg;for(var c in C)if(!s.price||!s.price[c])miss=true;if(miss)newPrices();
+  afterLoad();
+}
+var sv=loadSave();
+(function(){
+  var c=$('btnCont');
+  if(sv){c.textContent='Продолжить · '+Math.floor(sv.money||0)+' 💰, день '+(Math.floor(sv.gt||0)+1)}else c.style.display='none';
+})();
+$('btnCont').onclick=function(){applyState(sv);intro=false;$('start').style.display='none'};
+var armed=false;
+$('btnNew').onclick=function(){
+  if(sv&&!armed){armed=true;this.textContent='Стереть сохранение? Нажмите ещё раз';return}
+  s=fresh();newPrices();afterLoad();save();
+  $('start').style.display='none';$('intro').style.display='flex';
+};
+setInterval(function(){if(!intro)save()},2000);
+document.addEventListener('visibilitychange',function(){if(!intro)save()});
+setInterval(function(){if(!intro){advance(0.2/65);pestTick();workerTick();chickTick()}update()},200);
+</script>
+</body>
+</html>
