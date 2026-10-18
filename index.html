@@ -60,9 +60,14 @@ button.act:disabled{opacity:.4}
 .fw.night::after{content:"";position:absolute;top:0;right:0;bottom:0;left:0;background:rgba(10,20,70,.45);pointer-events:none;border-radius:10px}
 .stockrow{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:14px}
 .plot.barn{background:#8a5a3a}
-.plot.dead{background:#444;opacity:.8}
+.plot.dead{background:#6b5a3a}
+.wilt{display:inline-block;filter:sepia(1) saturate(.7) brightness(.75);transform:rotate(18deg)}
 .plot.ready.epic{background:#7b3fb0;box-shadow:inset 0 -5px 0 #5a2a85,0 0 0 3px #d9a8ff}
 .seed.rare{border-color:#9b59d0}
+#toast{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:50%;transform:translateX(-50%);background:rgba(10,20,70,.92);color:#fff;padding:10px 18px;border-radius:20px;font-weight:700;z-index:20;pointer-events:none}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:8px}
+.tab{border:2px solid var(--bd);background:var(--card);color:var(--tx);border-radius:10px;padding:8px 2px;font:inherit;font-size:12px}
+.tab.on{border-color:var(--ac);background:var(--ac);color:var(--onac)}
 .msg{min-height:20px;color:var(--mu);font-size:14px;margin-top:10px}
 button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .fw{position:relative}
@@ -80,6 +85,7 @@ html{-webkit-text-size-adjust:100%}
 </head>
 <body>
 <noscript><div style="background:#b00020;color:#fff;padding:12px;font:15px sans-serif">Игра не запустилась: этот просмотр не выполняет скрипты. Откройте игру по ссылке в Safari, а не файлом.</div></noscript>
+<div id="toast" style="display:none"></div>
 <main>
   <div class="top"><div class="money" id="money"></div><div class="day" id="day"></div></div>
   <div class="evb" id="evb" style="display:none"></div>
@@ -98,7 +104,8 @@ html{-webkit-text-size-adjust:100%}
   <div class="msg" id="msg">Выберите семена и нажмите на пустую грядку.</div>
 </main>
 <div class="modal" id="m-market"><div class="box"><div class="mh"><h2>Рынок</h2><span class="mm"></span><button class="x">✕</button></div><div class="hint mmsg"></div><div id="market"></div><div class="row" id="eggrow" style="display:none"><div class="nm" id="eggtxt"></div><button class="act" id="eggsell">Продать</button></div></div></div>
-<div class="modal" id="m-ups"><div class="box"><div class="mh"><h2>Улучшения</h2><span class="mm"></span><button class="x">✕</button></div><div class="hint mmsg"></div><div id="ups"></div><button class="act" id="land" style="width:100%"></button><button class="act" id="prest" style="width:100%;margin-top:8px"></button></div></div>
+<div class="modal" id="m-ups"><div class="box"><div class="mh"><h2>Улучшения</h2><span class="mm"></span><button class="x">✕</button></div><div class="hint mmsg"></div><div class="tabs" id="tabs"><button class="tab on" data-t="w">💧 Полив</button><button class="tab" data-t="g">🌱 Сад</button><button class="tab" data-t="k">🧑‍🌾 Работники</button><button class="tab" data-t="o">📦 Заказы</button></div>
+<div id="ups"></div><button class="act" id="land" style="width:100%"></button><button class="act" id="prest" style="width:100%;margin-top:8px"></button></div></div>
 <div class="modal" id="m-orders"><div class="box"><div class="mh"><h2>Заказы</h2><span class="mm"></span><button class="x">✕</button></div><div class="hint mmsg"></div><div id="orders"></div></div></div>
 <div class="modal" id="m-crops"><div class="box"><div class="mh"><h2>Новые культуры</h2><span class="mm"></span><button class="x">✕</button></div><div class="hint mmsg"></div><div id="crops"></div></div></div>
 <div class="modal" id="m-build"><div class="box"><div class="mh"><h2>Постройки</h2><span class="mm"></span><button class="x">✕</button></div><div class="hint mmsg"></div>
@@ -137,7 +144,7 @@ var C={
 };
 var MAX_PLOTS=25, SALARY=75;
 function fresh(){
-  var o={money:40,gt:0,sel:'wheat',plots:[],inv:{},gold:{},up:{water:0,gold:0,ad:0,rat:0,time:0,barn:0,sc:0,drops:0,hs:0,hc:0,hw:0,ls:0,lc:0,lw:0},unl:{wheat:1,carrot:1,pumpkin:1},orders:[],oid:0,ev:null,wacc:0,idle:false,pres:0,earned:0,tool:null,eggs:0,wk:{},bi:0,rare:{},purple:0,chickens:0,merch:null,rsel:null,price:{},prev:{}};
+  var o={money:40,gt:0,sel:'wheat',plots:[],inv:{},gold:{},up:{water:0,gold:0,ad:0,rat:0,time:0,barn:0,sc:0,drops:0,hs:0,hc:0,hw:0,ls:0,lc:0,lw:0},unl:{wheat:1,carrot:1,pumpkin:1},orders:[],oid:0,ev:null,wacc:0,idle:false,pres:0,earned:0,tool:null,eggs:0,wk:{},bi:0,drops:[],rare:{},purple:0,chickens:0,merch:null,rsel:null,price:{},prev:{}};
   for(var k in C){o.inv[k]=0;o.gold[k]=0}
   for(var i=0;i<10;i++)o.plots.push(null);
   o.cell=o.plots.map(function(){return {}});
@@ -223,7 +230,8 @@ var UP={
     m:function(){return 'Заказы теперь висят '+orderLife()+' дн.'}},
 };
 function wper(t){var l=s.up['l'+t];return t==='s'?Math.max(6,20-2*l):Math.max(1.5,5-0.4*l)}
-var WN={s:['🧾','Продавец','продаёт весь урожай и яйца'],c:['🧺','Сборщик','собирает урожай и сажает выбранную культуру'],w:['🚿','Поливальщик','поливает грядки без мини-игры']};
+var UPG={water:'w',drops:'w',gold:'g',rat:'g',sc:'g',barn:'g',ad:'o',time:'o',hs:'k',hc:'k',hw:'k',ls:'k',lc:'k',lw:'k'},curTab='w';
+var WN={s:['🧾','Продавец','продаёт весь урожай и яйца'],c:['🧺','Сборщик','собирает урожай и сажает выбранную культуру'],w:['🚿','Поливальщик','собирает капли за вас, без мини-игры']};
 ['s','c','w'].forEach(function(t){
   UP['h'+t]={max:3,c:function(l){return 150*Math.pow(2,l)},
     t:function(){return WN[t][0]+' '+WN[t][1]+' · нанято '+s.up['h'+t]+'<span>'+WN[t][2]+'. Зарплата '+SALARY+' 💰 в день</span>'},
@@ -239,10 +247,7 @@ function workerTick(){
   wjob('c',s.up.hc,wper('c'),workerAct);
   wjob('w',s.up.hw,wper('w'),workerWater);
 }
-function workerWater(){
-  var c=[];s.plots.forEach(function(p){if(p&&p.prog<C[p.k].grow)c.push(p)});
-  if(c.length)c[Math.floor(Math.random()*c.length)].prog+=waterSec()*0.05;
-}
+function workerWater(){if(s.drops.length)collectDrop(s.drops[Math.floor(Math.random()*s.drops.length)])}
 function sellAllStock(){
   var t=0;
   for(var k in C){var n=s.inv[k],g=s.gold[k];if(n||g){t+=Math.round((n+2*g)*s.price[k]*pm());s.inv[k]=0;s.gold[k]=0}}
@@ -321,7 +326,7 @@ function pm(){return 1+0.05*s.pres}
 function barnCap(){return 30+20*s.up.barn}
 function stockTotal(){var t=0;for(var k in C)t+=s.inv[k]+s.gold[k];return t}
 function ratChance(){return 0.2*Math.pow(0.8,s.up.rat)}
-function nightNow(){return s.gt%1>=50/65}
+function nightNow(){return s.gt%1>=0.8}
 function guarded(i){
   var r=s.up.sc?8:4,ri=Math.floor(i/5),ci=i%5;
   for(var j=0;j<s.cell.length;j++){
@@ -331,13 +336,14 @@ function guarded(i){
   }
   return false;
 }
-var lastNight=false;
+var lastNight=false,ratNight=false,toastT=0;
+function toast(t){var e=$('toast');e.textContent=t;e.style.display='block';clearTimeout(toastT);toastT=setTimeout(function(){e.style.display='none'},1000)}
 function pestTick(){
   var nn=nightNow();
-  if(nn&&!lastNight){var nm='🌙 Наступает ночь! Приготовьтесь: придут грызуны.';if($('wt').classList.contains('on'))closeMini(nm);else say(nm)}
+  if(nn&&!lastNight){ratNight=Math.random()<0.5;toast('🌙 Наступает ночь!');var nm='Наступила ночь.';if($('wt').classList.contains('on'))closeMini(nm);else say(nm)}
   lastNight=nn;
   s.plots.forEach(function(p,i){if(p&&p.pest){p.pest--;if(p.pest<=0){s.plots[i]=null;say('🐀 Вредитель съел растение!')}}});
-  if(nightNow()&&Math.random()<ratChance()){
+  if(nightNow()&&ratNight&&Math.random()<ratChance()){
     var c=[];s.plots.forEach(function(p,i){if(p&&!p.dead&&!p.pest&&!guarded(i))c.push(i)});
     if(c.length)s.plots[c[Math.floor(Math.random()*c.length)]].pest=25;
   }
@@ -468,7 +474,7 @@ function update(){
     else{
       var pr=p.prog/C[p.k].grow;
       if(pr<1){cls='plot'+gx;html='🌱<small>'+Math.floor(pr*100)+'%</small>'}
-      else if(p.dead){cls='plot dead'+gx;html='🥀'}
+      else if(p.dead){cls='plot dead'+gx;html='<span class="wilt">🌾</span>'}
       else if(p.e){cls='plot ready epic'+gx;html=C[p.k].e+'🟣'}
       else{cls='plot ready'+(p.g?' gold':'')+gx;html=C[p.k].e+(p.g?'✨':'')}
     }
@@ -476,10 +482,12 @@ function update(){
   });
   Object.keys(UP).forEach(function(k){
     var u=UP[k],r=upRows[k],c=upCost(k),mx=s.up[k]>=u.max,t=u.t();
+    setD(r,UPG[k]===curTab?'':'none');
     if(r.firstChild._h!==t){r.firstChild.innerHTML=t;r.firstChild._h=t}
     setT(r.lastChild,mx?'Максимум':c+' 💰');r.lastChild.disabled=mx||s.money<c;
   });
   if(!presArmed)setT($('prest'),'⭐ Престиж: +5% к прибыли · '+Math.floor(s.earned)+'/'+presNeed()+' 💰');
+  if($('wt').classList.contains('on')){renderDrops();wHud()}
   renderRare();
   var mb=$('bmerch');
   if(s.merch){setD(mb,'');setT(mb,'🧳 Торговец редкими семенами · осталось дней: '+Math.max(1,Math.ceil(s.merch.until-s.gt)))}else setD(mb,'none');
@@ -505,7 +513,7 @@ buildSeeds();buildField();buildMarket();buildUps();update();
 function advance(d){
   var o=Math.floor(s.gt);s.gt+=d;
   var sp=s.ev?s.ev.mul:1;
-  s.plots.forEach(function(p,i){if(p)p.prog+=d*3.25*(s.cell[i].gh?1.5*Math.max(sp,1):sp)});
+  s.plots.forEach(function(p,i){if(p)p.prog+=d*3.75*(s.cell[i].gh?1.5*Math.max(sp,1):sp)});
   
   if(Math.floor(s.gt)>o)newDay();
 }
@@ -527,39 +535,48 @@ function newDay(){
   var pay=(s.up.hs+s.up.hc+s.up.hw)*SALARY;s.idle=false;
   if(pay){if(s.money>=pay)s.money-=pay;else{s.idle=true;say('Не хватило денег на зарплату: работники отдыхают.')}}
 }
-var wt={on:false,score:0,left:0,t:null,sp:null};
-function hud(t){$('hud').textContent=t}
+var wt={on:false};
+function hud(t){setT($('hud'),t)}
+function wHud(){hud('💧 Нажимайте на капли: +'+waterSec()+' сек роста этой грядке · капель: '+s.drops.length+'/'+dropCap())}
 function wEnd(){
-  clearInterval(wt.t);clearInterval(wt.sp);
-  var was=wt.on;wt.on=false;
+  wt.on=false;
   var d=$('wt').querySelectorAll('.drop');
   for(var i=0;i<d.length;i++)d[i].parentNode.removeChild(d[i]);
-  if(was){hud('\u0423\u0441\u043a\u043e\u0440\u0435\u043d\u043e \u043d\u0430 '+wt.score.toFixed(1)+' \u0441\u0435\u043a. \u041d\u0430\u0436\u043c\u0438\u0442\u0435, \u0447\u0442\u043e\u0431\u044b \u043f\u043e\u043b\u0438\u0442\u044c \u0435\u0449\u0451');say('\u0412\u0440\u0435\u043c\u044f \u0443\u0441\u043a\u043e\u0440\u0435\u043d\u043e \u043d\u0430 '+wt.score.toFixed(1)+' \u0441\u0435\u043a.')}
 }
-function wHud(){hud('💧 Выросло на '+Math.round(wt.score)+' сек · капель: '+dropCap())}
-function wSpawn(){
-  var cur=$('wt').querySelectorAll('.drop');
-  if(cur.length>=dropCap())return;
-  var used={},c=[];
-  for(var q=0;q<cur.length;q++)used[cur[q].getAttribute('data-p')]=1;
-  s.plots.forEach(function(p,i){if(p&&p.prog<C[p.k].grow&&!used[i])c.push(i)});
-  if(!c.length)return;
-  var i=c[Math.floor(Math.random()*c.length)],pb=plotBtns[i];
-  var b=document.createElement('button');
-  b.className='drop';b.textContent='💧';b.setAttribute('data-p',i);
-  b.style.left=(pb.offsetLeft+pb.offsetWidth/2)+'px';b.style.top=(pb.offsetTop+pb.offsetHeight/2)+'px';
-  b.onclick=function(e){
-    e.stopPropagation();
-    if(!wt.on||!b.parentNode)return;
-    b.parentNode.removeChild(b);
-    var p=s.plots[i];
-    if(p){var g=waterSec();p.prog+=g*0.05;wt.score+=g}
-    wHud();update();
-  };
-  $('wt').appendChild(b);
-  setTimeout(function(){if(b.parentNode)b.parentNode.removeChild(b)},2500);
+function dropSpawn(){
+  if(s.drops.length>=dropCap())return;
+  var c=[];
+  s.plots.forEach(function(p,i){if(p&&!p.dead&&p.prog<C[p.k].grow&&s.drops.indexOf(i)<0)c.push(i)});
+  if(c.length)s.drops.push(c[Math.floor(Math.random()*c.length)]);
 }
-function wStart(){wt.on=true;wt.score=0;wHud();wt.sp=setInterval(wSpawn,500);wSpawn()}
+var dropT=0;
+function dropTick(){
+  s.drops=s.drops.filter(function(i){var p=s.plots[i];return p&&!p.dead&&p.prog<C[p.k].grow});
+  if(++dropT>=3){dropT=0;dropSpawn()}
+}
+function collectDrop(i){
+  var k=s.drops.indexOf(i);if(k<0)return;
+  s.drops.splice(k,1);
+  var p=s.plots[i];
+  if(p&&!p.dead&&p.prog<C[p.k].grow)p.prog+=waterSec()*0.05;
+}
+function renderDrops(){
+  var have={},cur=$('wt').querySelectorAll('.drop');
+  for(var q=cur.length-1;q>=0;q--){
+    var pi=+cur[q].getAttribute('data-p');
+    if(s.drops.indexOf(pi)<0)cur[q].parentNode.removeChild(cur[q]);else have[pi]=1;
+  }
+  s.drops.forEach(function(i){
+    var pb=plotBtns[i];
+    if(have[i]||!pb)return;
+    var b=document.createElement('button');
+    b.className='drop';b.textContent='💧';b.setAttribute('data-p',i);
+    b.style.left=(pb.offsetLeft+pb.offsetWidth/2)+'px';b.style.top=(pb.offsetTop+pb.offsetHeight/2)+'px';
+    b.onclick=function(e){e.stopPropagation();collectDrop(i);renderDrops();wHud();update()};
+    $('wt').appendChild(b);
+  });
+}
+function wStart(){wt.on=true;wHud();renderDrops()}
 $('wt').onclick=function(){if(!wt.on)wStart()};
 function growing(){return s.plots.some(function(p){return p&&p.prog<C[p.k].grow})}
 function openMini(){
@@ -589,6 +606,12 @@ $('tbn').onclick=function(){s.tool='b';closeM('m-build');say('Нажмите н�
 $('sellall').onclick=function(){var t=sellAllStock();say(t?'Продано всё на '+t+' 💰.':'Продавать нечего.');update()};
 $('eggsell').onclick=function(){var t=Math.round(s.eggs*s.price.egg*pm());if(!t)return;s.money+=t;s.earned+=t;say('Продано яиц: '+s.eggs+' за '+t+' 💰.');s.eggs=0;update()};
 $('bmerch').onclick=function(){renderMerch();openM('m-merch')};
+$('tabs').onclick=function(e){
+  var b=e.target.closest?e.target.closest('button'):null;if(!b)return;
+  curTab=b.getAttribute('data-t');var bs=this.children;
+  for(var i=0;i<bs.length;i++)setC(bs[i],'tab'+(bs[i]===b?' on':''));
+  update();
+};
 function presNeed(){return 3000*(s.pres+1)}
 var presArmed=false;
 $('prest').onclick=function(){
@@ -634,7 +657,7 @@ $('btnNew').onclick=function(){
 };
 setInterval(function(){if(!intro)save()},2000);
 document.addEventListener('visibilitychange',function(){if(!intro)save()});
-setInterval(function(){if(!intro){advance(0.2/65);pestTick();workerTick();chickTick()}update()},200);
+setInterval(function(){if(!intro){advance(0.2/75);pestTick();workerTick();chickTick();dropTick()}update()},200);
 </script>
 </body>
 </html>
