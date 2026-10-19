@@ -128,28 +128,30 @@ button.act.mini{padding:5px 8px;font-size:12px}
 @media(max-width:380px){main{padding:8px;border-width:3px}.seeds{padding:5px;gap:5px}.seed{font-size:11px;padding:6px 2px}.field{padding:5px;gap:4px}.hrow{gap:4px}.fieldstatus{font-size:10px}}
 
 .btn-icon.barn-icon{display:flex;align-items:center;justify-content:center;width:20px;height:20px;font-size:20px;line-height:1}.btn-icon.barn-icon svg{display:block;width:20px;height:20px;filter:drop-shadow(1px 1px 0 #8a5a32)}
-.ringbtn{position:relative;width:48px;height:48px;padding:0;border:0;background:none;flex:none;cursor:pointer}
-.ringtxt{position:absolute;left:0;top:0;width:48px;height:48px;display:flex;align-items:center;justify-content:center;color:#4d7f2f;line-height:1}
-.ringtxt b{font-size:19px}
-.moneyrow{flex:1;min-width:0;margin-left:10px;display:flex;flex-direction:column;justify-content:center}
-.mline{display:flex;align-items:center}
+.ringbtn{position:relative;width:56px;height:56px;padding:0;border:0;background:none;flex:none;cursor:pointer}
+.ringtxt{position:absolute;left:0;top:0;width:56px;height:56px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#4d7f2f;line-height:1}
+.ringtxt small{font-size:10px;font-weight:700;color:#6f5838;margin-bottom:1px}
+.ringtxt b{font-size:20px}
+.moneyrow{flex:1;min-width:0;margin-left:10px;height:56px;display:flex;flex-direction:column;justify-content:space-between}
+.mline{display:flex;align-items:center;height:26px}
 .mline svg{flex:none;margin-right:8px}
-.mline .money{font-size:29px;line-height:1.1;min-width:0}
-.mline.pl{margin-top:3px}
-.mline.pl .money,.money.purple{font-size:21px;color:#7b3fb0}
-.day{flex:none;display:flex;flex-direction:column;align-items:center;padding:6px 12px;color:#735033}
-.day span{font-size:12px;font-weight:700;line-height:1.1}
-.day b{font-size:24px;line-height:1}
+.mline .money{font-size:22px;line-height:26px;min-width:0}
+.mline.pl .money,.money.purple{color:#7b3fb0}
+.day{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;height:56px;box-sizing:border-box;padding:0 10px;color:#735033}
+.day span{font-size:11px;font-weight:700;line-height:1.1}
+.day b{font-size:20px;line-height:1}
 .xpbar{position:relative;height:24px;border:3px solid #8a5a32;background:#fff1c9;box-sizing:border-box;margin:8px 0}
 .xpbar i{display:block;height:100%;background:linear-gradient(#a8e06f,#6cbf4a)}
 .xpbar span{position:absolute;left:0;right:0;top:0;text-align:center;font-size:13px;font-weight:700;line-height:18px;color:#3f2a18}
+.coin{display:inline-block;width:.95em;height:.95em;vertical-align:-.14em;border-radius:50%;background:#f6c84b;border:.11em solid #9a6a14;box-sizing:border-box;position:relative;margin:0 .05em}
+.coin::after{content:"";position:absolute;left:22%;top:22%;width:56%;height:56%;border:.09em solid #9a6a14;border-radius:50%;box-sizing:border-box}
 </style>
 </head>
 <body>
 <noscript><div style="background:#b00020;color:#fff;padding:12px;font:15px sans-serif">Игра не запустилась: этот просмотр не выполняет скрипты. Откройте игру по ссылке в Safari, а не файлом.</div></noscript>
 <div id="toast" style="display:none"></div>
 <main>
-  <div class="top"><button class="ringbtn" id="repbtn" aria-label="Репутация"><svg width="48" height="48" viewBox="0 0 68 68" aria-hidden="true"><circle cx="34" cy="34" r="30" fill="#ffebbb" stroke="#e2b56d" stroke-width="2"/><circle cx="34" cy="34" r="26" fill="none" stroke="#fff1c9" stroke-width="7"/><circle id="repring" cx="34" cy="34" r="26" fill="none" stroke="#4c963e" stroke-width="7" stroke-linecap="round" stroke-dasharray="0 163.4" transform="rotate(-90 34 34)"/></svg><span class="ringtxt"><b id="rep">0</b></span></button><div class="moneyrow"><div class="mline"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#9a6a14" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="#f6c84b"/><circle cx="12" cy="12" r="5"/></svg><span class="money" id="money"></span></div><div class="mline pl"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5a2a85" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="#b98ae8"/><circle cx="12" cy="12" r="5"/></svg><span class="money purple" id="purple"></span></div></div><div class="day" id="day"></div></div>
+  <div class="top"><button class="ringbtn" id="repbtn" aria-label="Репутация"><svg width="56" height="56" viewBox="3 3 62 62" aria-hidden="true"><circle cx="34" cy="34" r="30" fill="#ffebbb" stroke="#e2b56d" stroke-width="2"/><circle cx="34" cy="34" r="26" fill="none" stroke="#fff1c9" stroke-width="7"/><circle id="repring" cx="34" cy="34" r="26" fill="none" stroke="#4c963e" stroke-width="7" stroke-linecap="round" stroke-dasharray="0 163.4" transform="rotate(-90 34 34)"/></svg><span class="ringtxt"><small>Ур</small><b id="rep">0</b></span></button><div class="moneyrow"><div class="mline"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#9a6a14" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="#f6c84b"/><circle cx="12" cy="12" r="5"/></svg><span class="money" id="money"></span></div><div class="mline pl"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#5a2a85" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="#b98ae8"/><circle cx="12" cy="12" r="5"/></svg><span class="money purple" id="purple"></span></div></div><div class="day" id="day"></div></div>
   <div class="evb" id="evb" style="display:none"></div>
   <button class="act" id="bmerch" style="display:none;width:100%;margin-bottom:8px"></button>
   <div class="stockrow"><div class="stock-widget"><span id="stock">Склад 0/30</span><div class="stock-meter" aria-hidden="true"><div class="stock-meter-fill" id="stockfill"></div></div></div><button class="act mini" id="sellall">Продать всё</button></div>
@@ -170,9 +172,9 @@ button.act.mini{padding:5px 8px;font-size:12px}
 
 <div class="modal" id="m-crops"><div class="box"><div class="mh"><h2>Новые культуры</h2><span class="mm"></span><button class="x">✕</button></div><div class="hint mmsg"></div><div id="crops"></div></div></div>
 <div class="modal" id="m-build"><div class="box"><div class="mh"><h2>Постройки</h2><span class="mm"></span><button class="x">✕</button></div><div class="hint mmsg"></div>
-<div class="row" style="display:none"><div class="nm">🧍 Пугало · 100 💰<span>Занимает клетку и защищает клетки вокруг от вредителей (4, после улучшения 8)</span></div><button class="act" id="tsc">Выбрать</button></div>
-<div class="row"><div class="nm">🏠 Теплица · 150 💰<span>Клетка растёт в 1,5 раза быстрее и не страдает от засухи</span></div><button class="act" id="tgh">Выбрать</button></div>
-<div class="row"><div class="nm">🏡 Амбар · 200 💰<span>Занимает клетку. В амбаре живёт курица: она несёт яйца, пока её кормят</span></div><button class="act" id="tbn">Выбрать</button></div>
+<div class="row" style="display:none"><div class="nm">🧍 Пугало · 100 <i class="coin"></i><span>Занимает клетку и защищает клетки вокруг от вредителей (4, после улучшения 8)</span></div><button class="act" id="tsc">Выбрать</button></div>
+<div class="row"><div class="nm">🏠 Теплица · 150 <i class="coin"></i><span>Клетка растёт в 1,5 раза быстрее и не страдает от засухи</span></div><button class="act" id="tgh">Выбрать</button></div>
+<div class="row"><div class="nm">🏡 Амбар · 200 <i class="coin"></i><span>Занимает клетку. В амбаре живёт курица: она несёт яйца, пока её кормят</span></div><button class="act" id="tbn">Выбрать</button></div>
 </div></div>
 <div class="modal" id="m-barn"><div class="box"><div class="mh"><h2>Амбар</h2><span class="mm"></span><button class="x">✕</button></div><div class="hint mmsg"></div><div id="barnbody"></div></div></div>
 <div class="modal" id="m-merch"><div class="box"><div class="mh"><h2>Торговец</h2><span class="mm"></span><button class="x">✕</button></div><div class="hint mmsg"></div><div id="merchbody"></div></div></div>
@@ -187,9 +189,9 @@ button.act.mini{padding:5px 8px;font-size:12px}
   <h1>Добро пожаловать на ферму</h1>
   <p>🌱 Выберите семена и нажмите на пустую грядку, чтобы посадить. Семена стоят денег.</p>
   <p>🌾 Когда растение вырастет, нажмите на него, чтобы собрать урожай.</p>
-  <p>💰 Продавайте обычные и золотые культуры на складе: цены меняются каждый день. Деньги тратьте на улучшения и новые участки.</p>
+  <p><i class="coin"></i> Продавайте обычные и золотые культуры на складе: цены меняются каждый день. Деньги тратьте на улучшения и новые участки.</p>
   <p>📦 Открывайте склад, чтобы выполнять заказы и контракты, нанимать работников и следить за погодой: дождь ускоряет рост, засуха замедляет.</p>
-  <p>💧 Полив растений ускоряет рост: нажимайте на капли над грядками — каждая добавляет этой грядке процент роста (5% на старте, улучшения дают больше).</p>
+  <p>💧 Полив растений ускоряет рост: нажимайте на капли над грядками — каждая добавляет этой грядке процент роста (5% на старте, улучшения дают больше). Комбо: 5 капель подряд без промаха, и каждая следующая даёт ещё +1% (до +5%); промах мимо капли или пауза больше секунды сбрасывает комбо.</p>
   <button class="act" id="introgo" style="width:100%;margin-top:12px">Играть</button>
 </div></div>
 <script>
@@ -212,9 +214,19 @@ function fresh(){
   return o;
 }
 var s=fresh();
+var COINHTML='<i class="coin"></i>';
+(function(){
+  try{
+    var P=[Element.prototype,HTMLElement.prototype];
+    for(var i=0;i<P.length;i++){
+      var d=Object.getOwnPropertyDescriptor(P[i],'innerHTML');
+      if(d&&d.set){Object.defineProperty(P[i],'innerHTML',{get:d.get,set:function(v){d.set.call(this,String(v).split('💰').join(COINHTML))},configurable:true});break}
+    }
+  }catch(e){}
+})();
 var E={};
-function $(id){return E[id]||(E[id]=document.getElementById(id))}
-function say(t){$('msg').textContent=t;var a=document.querySelectorAll('.mmsg');for(var i=0;i<a.length;i++)a[i].textContent=t}
+function $(id){var e=E[id];if(!e||!e.isConnected)e=E[id]=document.getElementById(id);return e}
+function say(t){$('msg').innerHTML=t;var a=document.querySelectorAll('.mmsg');for(var i=0;i<a.length;i++)a[i].innerHTML=t}
 function newPrices(){s.prev.egg=s.price.egg||25;s.price.egg=Math.max(1,Math.round(25*(0.45+Math.random()*1.3)*(s.ev&&s.ev.t==='dry'?1.3:1)));
   for(var k in C){
     s.prev[k]=s.price[k]||C[k].base;
@@ -359,8 +371,8 @@ function buildUps(){
   });
 }
 function fmtN(n){return String(Math.floor(n)).replace(/\B(?=(\d{3})+(?!\d))/g,' ')}
-var ICO_SUN='<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c98a12" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="#f6c84b"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>',ICO_MOON='<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" fill="#f6c84b" stroke="#c98a12" stroke-width="1.5" stroke-linejoin="round"/></svg>';
-function setT(el,t){if(el.textContent!==t)el.textContent=t}
+var ICO_SUN='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c98a12" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="#f6c84b"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg>',ICO_MOON='<svg width="16" height="16" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" fill="#f6c84b" stroke="#c98a12" stroke-width="1.5" stroke-linejoin="round"/></svg>';
+function setT(el,t){if(t.indexOf('💰')>=0){setH(el,t);return}if(el.textContent!==t)el.textContent=t}
 function setC(el,c){if(el.className!==c)el.className=c}
 function setD(el,v){if(el.style.display!==v)el.style.display=v}
 function setH(el,v){if(el._h!==v){el.innerHTML=v;el._h=v}}
@@ -652,7 +664,7 @@ function update(){
     setT(r.lastChild,mx?'Максимум':c+' 💰');r.lastChild.disabled=mx||s.money<c;
   });
   if(!presArmed)setT($('prest'),'⭐ Престиж: +5% к прибыли · '+Math.floor(s.earned)+'/'+presNeed()+' 💰');
-  if($('wt').classList.contains('on')){renderDrops();wHud()}
+  if($('wt').classList.contains('on')){comboTick();renderDrops();wHud()}
   renderRare();
   var mb=$('bmerch');
   if(s.merch){setD(mb,'');setT(mb,'🧳 Торговец редкими семенами · осталось дней: '+Math.max(1,Math.ceil(s.merch.until-s.gt)))}else setD(mb,'none');
@@ -671,7 +683,7 @@ function update(){
   else setD(eb,'none');
   var L=$('land');
   if(s.plots.length>=MAX_PLOTS){L.textContent='Все участки куплены';L.disabled=true}
-  else L.textContent='Купить участок · '+landCost()+' 💰';
+  else setH(L,'Купить участок · '+landCost()+' 💰');
   if($('wt').classList.contains('on')&&!growing())closeMini('Все растения выросли — полив закрыт.');
 }
 buildSeeds();buildField();buildMarket();buildUps();newContractOffers();update();
@@ -703,11 +715,19 @@ function newDay(){
   var pay=(s.up.hs+s.up.hc+s.up.hw)*SALARY;s.idle=false;
   if(pay){if(s.money>=pay)s.money-=pay;else{s.idle=true;say('Не хватило денег на зарплату: работники отдыхают.')}}
 }
-var wt={on:false};
+var wt={on:false},combo=0,lastTap=0,COMBO_MAX=10,COMBO_FROM=5;
 function hud(t){setT($('hud'),t)}
-function wHud(){hud('')}
+function comboBonus(){return Math.max(0,combo-COMBO_FROM)}
+function comboTick(){if(combo>0&&Date.now()-lastTap>1000)combo=0}
+function wHud(){hud('⚡ Комбо '+combo+' / '+COMBO_MAX+(comboBonus()?' · +'+comboBonus()+'%':''))}
+function tapDrop(i){
+  var now=Date.now();
+  if(combo>0&&now-lastTap>1000)combo=0;
+  combo=Math.min(COMBO_MAX,combo+1);lastTap=now;
+  collectDrop(i,comboBonus()/100);
+}
 function wEnd(){
-  wt.on=false;
+  wt.on=false;combo=0;
   var d=$('wt').querySelectorAll('.drop');
   for(var i=0;i<d.length;i++)d[i].parentNode.removeChild(d[i]);
 }
@@ -722,11 +742,11 @@ function dropTick(){
   s.drops=s.drops.filter(function(i){var p=s.plots[i];return p&&!p.dead&&p.prog<C[p.k].grow});
   if(++dropT>=2){dropT=0;dropSpawn()}
 }
-function collectDrop(i){
+function collectDrop(i,extra){
   var k=s.drops.indexOf(i);if(k<0)return;
   s.drops.splice(k,1);
   var p=s.plots[i];
-  if(p&&!p.dead&&p.prog<C[p.k].grow)p.prog=Math.min(C[p.k].grow,p.prog+waterPct()*C[p.k].grow);
+  if(p&&!p.dead&&p.prog<C[p.k].grow)p.prog=Math.min(C[p.k].grow,p.prog+(waterPct()+(extra||0))*C[p.k].grow);
 }
 function renderDrops(){
   var have={},cur=$('wt').querySelectorAll('.drop');
@@ -740,12 +760,12 @@ function renderDrops(){
     var b=document.createElement('button');
     b.className='drop';b.textContent='💧';b.setAttribute('data-p',i);
     b.style.left=(pb.offsetLeft+pb.offsetWidth/2)+'px';b.style.top=(pb.offsetTop+pb.offsetHeight/2)+'px';
-    b.onclick=function(e){e.stopPropagation();collectDrop(i);renderDrops();wHud();update()};
+    b.onclick=function(e){e.stopPropagation();tapDrop(i);renderDrops();wHud();update()};
     $('wt').appendChild(b);
   });
 }
 function wStart(){wt.on=true;wHud();renderDrops()}
-$('wt').onclick=function(){if(!wt.on)wStart()};
+$('wt').onclick=function(){if(!wt.on)wStart();else{combo=0;wHud()}};
 function growing(){return s.plots.some(function(p){return p&&p.prog<C[p.k].grow})}
 function openMini(){
   if(nightNow()){say('Ночью полив растений недоступен.');return}
@@ -775,6 +795,7 @@ $('tgh').onclick=function(){s.tool='gh';closeM('m-build');say('Нажмите н
 $('tbn').onclick=function(){s.tool='b';closeM('m-build');say('Нажмите на свободную клетку, чтобы построить амбар (200 💰).')};
 function hasRareStock(){for(var k in C)if((s.gold[k]||0)>0)return true;return false}
 function openSellConfirm(){
+  if(!hasRareStock()){var t0=sellAllStock();say(t0?'Продано всё на '+t0+' 💰.':'Продавать нечего.');update();return}
   var rare=hasRareStock(),h='<div class="hint">Что сделать с урожаем?</div><button class="act" id="sellconfirmall" style="width:100%;margin-top:8px">Продать весь урожай</button>';
   if(rare)h+='<button class="act" id="sellkeeprare" style="width:100%;margin-top:8px">Продать урожай, но оставить редкие культуры</button>';
   h+='<button class="act" id="sellcancel" style="width:100%;margin-top:8px">Отмена</button>';
@@ -839,7 +860,7 @@ function applyState(d){
 var sv=loadSave();
 (function(){
   var c=$('btnCont');
-  if(sv){c.textContent='Продолжить · '+Math.floor(sv.money||0)+' 💰, день '+(Math.floor(sv.gt||0)+1)}else c.style.display='none';
+  if(sv){c.innerHTML='Продолжить · '+Math.floor(sv.money||0)+' 💰, день '+(Math.floor(sv.gt||0)+1)}else c.style.display='none';
 })();
 $('btnCont').onclick=function(){applyState(sv);intro=false;$('start').style.display='none'};
 var armed=false;
