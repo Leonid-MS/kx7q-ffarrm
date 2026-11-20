@@ -109,6 +109,14 @@ async function embeddedBytes(name) {
   })());
   return embeddedCache.get(name);
 }
+async function startEmbeddedGame(options) {
+  const packPath = '/index.pck';
+  await Promise.all([
+    engine.init(GODOT_CONFIG.executable),
+    embeddedBytes('index.pck').then(bytes => engine.preloadFile(bytes, packPath)),
+  ]);
+  return engine.start({ ...options, args: ['--main-pack', packPath, ...GODOT_CONFIG.args] });
+}
 const originalFetch = window.fetch.bind(window);
 window.fetch = async function(input, options) {
   const url = typeof input === 'string' ? input : input.url;
@@ -1109,7 +1117,7 @@ const engine = new Engine(GODOT_CONFIG);
 				}),
 			]).catch((err) => {
 				console.error('Error while registering service worker:', err);
-			})).then(() => {
+			}).then(() => {
 				window.location.reload();
 			});
 		} else {
@@ -1119,12 +1127,7 @@ const engine = new Engine(GODOT_CONFIG);
 		}
 	} else {
 		setStatusMode('progress');
-		const packPath = '/index.pck';
-Promise.all([
-	engine.init(GODOT_CONFIG.executable),
-	embeddedBytes('index.pck').then(bytes => engine.preloadFile(bytes, packPath)),
-]).then(() => engine.start({
-	args: ['--main-pack', packPath, ...GODOT_CONFIG.args],
+		startEmbeddedGame({
 			'onProgress': function (current, total) {
 				if (current > 0 && total > 0) {
 					statusProgress.value = current;
@@ -1134,7 +1137,7 @@ Promise.all([
 					statusProgress.removeAttribute('max');
 				}
 			},
-		})).then(() => {
+		}).then(() => {
 			setStatusMode('hidden');
 		}, displayFailureNotice);
 	}
