@@ -1109,7 +1109,7 @@ const engine = new Engine(GODOT_CONFIG);
 				}),
 			]).catch((err) => {
 				console.error('Error while registering service worker:', err);
-			}).then(() => {
+			})).then(() => {
 				window.location.reload();
 			});
 		} else {
@@ -1119,7 +1119,12 @@ const engine = new Engine(GODOT_CONFIG);
 		}
 	} else {
 		setStatusMode('progress');
-		engine.startGame({
+		const packPath = '/index.pck';
+Promise.all([
+	engine.init(GODOT_CONFIG.executable),
+	embeddedBytes('index.pck').then(bytes => engine.preloadFile(bytes, packPath)),
+]).then(() => engine.start({
+	args: ['--main-pack', packPath, ...GODOT_CONFIG.args],
 			'onProgress': function (current, total) {
 				if (current > 0 && total > 0) {
 					statusProgress.value = current;
@@ -1129,7 +1134,7 @@ const engine = new Engine(GODOT_CONFIG);
 					statusProgress.removeAttribute('max');
 				}
 			},
-		}).then(() => {
+		})).then(() => {
 			setStatusMode('hidden');
 		}, displayFailureNotice);
 	}
